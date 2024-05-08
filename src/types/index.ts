@@ -1,8 +1,10 @@
 export type StateTransition = {
-	from: number | string;
-	to: number | string;
-	onBeforeChange?: (() => {}) | (() => void);
-	onAfterChange?: (() => {}) | (() => void);
-	onError?: (() => {}) | (() => void);
-	onSuccess?: (() => {}) | (() => void);
+	fromState: number | string;
+	action: string;
+	validationMethod?: any;
+	onValidationFailed?: any;
+	sideEffect?: any;
+	onSideEffectError?: any;
+	toState: number | string;
+	autoProgress?: boolean;
 };
