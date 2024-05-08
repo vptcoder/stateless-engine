@@ -1,45 +1,62 @@
-import type { StateTransition } from "../types";
+import type { StateTransition } from '../types'
 
 export class SimpleStateEngine {
-  id: string;
-  workflow?: StateTransition[];
+  id: string
+  workflow?: StateTransition[]
   validateResults:
     | { current: number | string; action: string; result: boolean }[]
-    | null;
+    | null
 
   constructor(id: string) {
-    this.id = id;
-    this.validateResults = null;
+    this.id = id
+    this.validateResults = null
   }
 
   design(transitions: StateTransition[]) {
-    console.error("Method not implemented.");
-    return this;
+    transitions.forEach((t) => {
+      if (
+        !this.workflow?.find(
+          (f) => f.fromState === t.fromState && f.action === t.action
+        )
+      ) {
+        this.workflow?.push(t)
+      } else {
+        throw new Error(
+          'A similar transition with current state ' +
+            t.fromState +
+            ' with action ' +
+            t.action +
+            ' already exists'
+        )
+      }
+    })
+
+    return this
   }
 
   use(plugin: SimpleStateEngine) {
-    console.error("Method not implemented.");
-    return this;
+    console.error('Method not implemented.')
+    return this
   }
 
   override(id: string, transitions: StateTransition[]) {
-    console.error("Method not implemented.");
-    return this;
+    console.error('Method not implemented.')
+    return this
   }
 
   validate<V>(current: number | string, action: string, validationInput: V) {
     const transition = this.workflow?.find(
       (t) => t.fromState === current && t.action === action
-    );
+    )
     if (!transition) {
       throw new Error(
-        "No transition exists with this initial state and this action."
-      );
+        'No transition exists with this initial state and this action.'
+      )
     }
 
     this.validateResults = this.validateResults?.filter(
       (r) => !(r.current === current && r.action === action)
-    ) as { current: number | string; action: string; result: boolean }[] | null;
+    ) as { current: number | string; action: string; result: boolean }[] | null
 
     if (
       !transition.validation ||
@@ -48,20 +65,20 @@ export class SimpleStateEngine {
       this.validateResults?.push({
         current: current,
         action: action,
-        result: true,
-      });
+        result: true
+      })
     } else {
       this.validateResults?.push({
         current: current,
         action: action,
-        result: false,
-      });
+        result: false
+      })
       if (transition.onValidationFailed) {
-        transition.onValidationFailed();
+        transition.onValidationFailed()
       }
     }
 
-    return this;
+    return this
   }
 
   progress<I>(
@@ -69,44 +86,44 @@ export class SimpleStateEngine {
     action: string,
     sideEffectInput?: I
   ): number | string {
-    let final = current;
+    let final = current
     const validationResult = this.validateResults?.find(
       (t) => t.current === current && t.action === action
-    )?.result;
+    )?.result
 
     if (validationResult === undefined) {
-      throw new Error("State Engine must first validate");
+      throw new Error('State Engine must first validate')
     }
 
     if (validationResult === false) {
-      throw new Error("State Engine cannot progress as validation failed");
+      throw new Error('State Engine cannot progress as validation failed')
     }
 
     const transition = this.workflow?.find(
       (t) => t.fromState === current && t.action === action
-    );
+    )
     if (!transition) {
       throw new Error(
-        "No transition exists with this initial state and this action."
-      );
+        'No transition exists with this initial state and this action.'
+      )
     }
 
     try {
-      transition.sideEffect(sideEffectInput ?? undefined);
+      transition.sideEffect(sideEffectInput ?? undefined)
     } catch (e) {
       if (transition.onSideEffectError) {
-        transition.onSideEffectError();
-        return final;
+        transition.onSideEffectError()
+        return final
       }
     }
-    final = transition.toState;
+    final = transition.toState
 
     if (transition.autoProgress) {
-      final = this.validate(final, "auto", "input-for-validation").progress(
+      final = this.validate(final, 'auto', 'input-for-validation').progress(
         final,
-        "auto"
-      );
+        'auto'
+      )
     }
-    return final;
+    return final
   }
 }
