@@ -9,38 +9,57 @@ export class SimpleStateEngine {
 
   constructor(id: string) {
     this.id = id
-    this.validateResults = null
+    this.workflow = []
+    this.validateResults = []
   }
 
   design(transitions: StateTransition[]) {
-    transitions.forEach((t) => {
-      if (
-        !this.workflow?.find(
-          (f) => f.fromState === t.fromState && f.action === t.action
-        )
-      ) {
-        this.workflow?.push(t)
-      } else {
-        throw new Error(
-          'A similar transition with current state ' +
-            t.fromState +
-            ' with action ' +
-            t.action +
-            ' already exists'
-        )
-      }
-    })
-
+    transitions?.forEach((t) => this.add(t))
     return this
   }
 
   use(plugin: SimpleStateEngine) {
-    console.error('Method not implemented.')
+    if (!plugin.workflow) {
+      return
+    }
+    plugin.workflow?.forEach((t) => this.add(t))
     return this
   }
 
-  override(id: string, transitions: StateTransition[]) {
-    console.error('Method not implemented.')
+  add(transition: StateTransition) {
+    if (
+      !this.workflow?.find(
+        (f) =>
+          f.fromState === transition.fromState && f.action === transition.action
+      )
+    ) {
+      this.workflow?.push(transition)
+    } else {
+      throw new Error(
+        'A similar transition with current state ' +
+          transition.fromState +
+          ' with action ' +
+          transition.action +
+          ' already exists'
+      )
+    }
+    return this
+  }
+
+  remove(transition: StateTransition) {
+    this.workflow = this.workflow?.filter(
+      (f) =>
+        !(
+          f.fromState === transition.fromState && f.action === transition.action
+        )
+    )
+    return this
+  }
+
+  override(transitions: StateTransition[]) {
+    transitions.forEach((t) => {
+      this.remove(t).add(t)
+    })
     return this
   }
 
@@ -48,6 +67,7 @@ export class SimpleStateEngine {
     const transition = this.workflow?.find(
       (t) => t.fromState === current && t.action === action
     )
+
     if (!transition) {
       throw new Error(
         'No transition exists with this initial state and this action.'

@@ -5,11 +5,13 @@
   "main": "src/index.ts",
   "description": "a simple statemachine package, flowstate or stateflow",
   "license": "ISC",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
+  "scripts": {},
   "devDependencies": {
     "eslint": "^9.2.0",
-    "prettier": "^3.2.5"
+    "prettier": "^3.2.5",
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
   }
 }
