@@ -2,6 +2,8 @@
 
 ## Philosophy
 
+> TLDR: DX
+
 Design first, then execute seamlessly.
 
 - avoid messy callbacks in code
