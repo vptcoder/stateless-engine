@@ -116,7 +116,8 @@ export class SimpleStateEngine {
     }
 
     if (validationResult === false) {
-      throw new Error('State Engine cannot progress as validation failed')
+      console.error('State Engine cannot progress as validation failed')
+      return final
     }
 
     const transition = this.workflow?.find(
